@@ -1,18 +1,23 @@
-# Projekt-II-7-segmentsdisplayer
+# Anteckningar 2023-03-16
+Drivrutiner för utskrift av tal på 7-segmentsdisplayer, implementerade för mikrodator ATmega328P. 
 
-Ett system bestående av en räknare som räknar upp/ned från 0 – 99, där uppräknat heltal skrivs ut på två 7-
-segmetsdisplayer en gång i sekunden när uppräkning är aktiverat. När räknarens värde överstiger 99 ska räknaren
-återställas till 0. På samma sätt gäller att om räknarens värde understiger 0 sätts räknaren till 99.
+Två 7-segmentsdisplayer matas från samma pinnar (PORTD0 - PORTD6), där timerkrets Timer 1 används för att
+skifta vilken display som är på vid ett givet tillfälle. En gång i millisekunden skiftas aktiv display.
+På display1 skrivs tiotal ut och på display2 skrivs ental ut. 
 
-En tryckknapp ansluten till pin 11 (PORTB3) ska användas som en start/stopp-signal för att starta eller stoppa uppräkning.
-Som default ska uppräkning inte ske.
-• En tryckknapp ansluten till pin 12 (PORTB4) ska användas för att toggla uppräkningsriktningen mellan upp och ned. Som
-default ska uppräkning ske uppåt.
-• En tryckknapp ansluten till pin 13 (PORTB5) ska användas som av/på-signal för att tända/släcka 7-segmentsdisplayerna. Som
-default ska 7-segmentsdisplayerna vara släckta. Även om 7-segmentsdisplayerna är släckta ska uppräkning ske om detta är
-aktiverat.
-• Skrivning ska ske till EEPROM-minnet en gång per sekund, så att om systemet återstartas, exempelvis efter att tillförsel av
-matningsspänning upphör, ska räknaren fortsätta på samma värde som tidigare, men samma uppräkningsriktning samt i
-samma tillstånd. Tips: Skriv information om samtliga parametrar till EEPROM-minnet en gång i sekunden och läs in dessa vid
-programstart.
-• Watchdog-timern ska implementeras så att systemåterställning sker ifall Watchdog-timern inte återställs inom en sekund.
+Talbasen kan väljas mellan 2, 10 samt 16 för utskrift av binära, decimala samt hexadecimala tal.
+Eftersom två displayer används sätts maxvärdet för binära tal till 0b11 (3), för decimala tal till 99
+samt för hexadecimala tal till 0xFF (255).
+
+Ur ett givet tal x av talbasen radix beräknas tiotalet samt heltalet enligt nedan:
+
+tiotal = x / radix (heltalsdivision)
+ental = x - tiotal * radix
+
+Som exempel, det decimala talet 74 delas in i tiotal och ental enligt nedan:
+
+tiotal = 74 / 10 = 7 (heltalsdivision)
+ental = 74 - 7 * 10 = 4
+
+I nästa del ska upp- och nedräkning av talet på displayerna implementeras via timerkrets Timer 2.
+För tillfället sker uppräkning med fördröjning i funktionen main.
