@@ -1,7 +1,24 @@
 /********************************************************************************
 * isr.c: Innehåller avbrottsrutiner.
 ********************************************************************************/
-#include "display.h"
+#include "header.h"
+
+ISR (PCINT0_vect)
+{
+	if (button_is_pressed(&b1))
+	{
+		display_toggle_count();
+	}
+	else if(button_is_pressed(&b2))
+	{
+		display_toggle_count_direction();
+	}
+	else if(button_is_pressed(&b3))
+	{
+		display_toggle_output();
+	}
+	return;
+}
 
 /********************************************************************************
 * ISR (TIMER1_COMPA_vect): Avbrottsrutin som äger rum vid uppräkning till 256 av
@@ -25,6 +42,5 @@ ISR (TIMER1_COMPA_vect)
 ISR (TIMER2_OVF_vect)
 {
    display_count();
-   
    return;
 }

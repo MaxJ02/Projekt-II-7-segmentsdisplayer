@@ -3,9 +3,11 @@
 *         Timerkrets Timer 1 används för att räkna upp befintligt tal på
 *         7-segmentsdisplayerna en gång per sekund.
 ********************************************************************************/
-#include "timer.h"
-#include "wdt.h"
-#include "display.h"
+#include "header.h"
+
+struct button b1;
+struct button b2;
+struct button b3;
 
 /********************************************************************************
 * setup: Initierar systemet enligt följande:
@@ -21,10 +23,18 @@ static inline void setup(void)
 {
    wdt_init(WDT_TIMEOUT_1024_MS);
    wdt_enable_interrupt();
-   
+
    display_init();
    display_enable_output();
-   display_enable_count();
+   
+   button_init(&b1, 11);
+   button_init(&b2, 12);
+   button_init(&b3, 13);
+   
+   button_enable_interrupt(&b1);
+   button_enable_interrupt(&b2);
+   button_enable_interrupt(&b3);
+   
    return;
 }
 
@@ -34,17 +44,13 @@ static inline void setup(void)
 ********************************************************************************/
 int main(void)
 {
-   uint8_t num = 0;
    setup();
    
    while (1)
    {
       wdt_reset();
-      display_set_number(num); 
-      delay_ms(100);           
-      if (++num >= 100) num = 0;
    }
-
+  
    return 0;
 }
 

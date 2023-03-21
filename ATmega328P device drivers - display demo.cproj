@@ -154,6 +154,9 @@
     <Compile Include="eeprom.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="header.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="isr.c">
       <SubType>compile</SubType>
     </Compile>

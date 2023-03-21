@@ -136,7 +136,6 @@ void display_toggle_digit(void);
 /********************************************************************************
 * display_count: Räknar upp eller ned tal på 7-segmentsdisplayer.
 ********************************************************************************/
-
 void display_count(void);
 
 /********************************************************************************
@@ -145,15 +144,13 @@ void display_count(void);
 *
 *                              - new_direction: Ny uppräkningsriktning.
 ********************************************************************************/
-
-void display_set_count_direction(const enum display_count_direction new_direction);
+void set_count_direction(const enum display_count_direction new_direction);
 
 /********************************************************************************
 * display_toggle_count_direction: Togglar uppräkningsriktning för tal som skrivs
 *                                 ut på 7-segmentsdisplayer.
 ********************************************************************************/
-
-void display_toggle_direction(void);
+void display_toggle_count_direction(void);
 
 /********************************************************************************
 * display_set_count: Ställer in upp- eller nedräkning av tal som skrivs ut på
@@ -162,9 +159,7 @@ void display_toggle_direction(void);
 *                    - direction     : Uppräkningsriktning.
 *                    - count_speed_ms: Uppräkningshastighet mätt i ms.
 ********************************************************************************/
-
-
-void display_set_count(const enum display_count_direction direction, 
+void display_set_count(const enum display_count_direction direction,
                        const uint16_t count_speed_ms);
 
 /********************************************************************************
@@ -173,22 +168,18 @@ void display_set_count(const enum display_count_direction direction,
 *                       uppräkningshastighet på 1000 ms om inget annat angetts
 *                       (via anrop av funktionen display_set_count).
 ********************************************************************************/
-
 void display_enable_count(void);
-
 
 /********************************************************************************
 * display_disable_count: Inaktiverar upp- eller nedräkning av tal som skrivs ut
 *                        på 7-segmentsdisplayerna.
 ********************************************************************************/
-
 void display_disable_count(void);
 
 /********************************************************************************
 * display_toggle_count: Togglar upp- eller nedräkning av tal som skrivs ut på
 *                       7-segmentsdisplayerna.
 ********************************************************************************/
-
 void display_toggle_count(void);
 
 #endif /* DISPLAY_H_ */

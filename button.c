@@ -110,3 +110,4 @@ void button_toggle_interrupt(struct button* self)
 
    return;
 }
+
