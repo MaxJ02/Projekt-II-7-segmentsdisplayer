@@ -17,7 +17,7 @@
 #define DISPLAY1_ON  PORTD &= ~(1 << DISPLAY1_CATHODE) /* Tänder display 1. */
 #define DISPLAY2_ON  PORTC &= ~(1 << DISPLAY2_CATHODE) /* Tänder display 2. */
 #define DISPLAY1_OFF PORTD |= (1 << DISPLAY1_CATHODE)  /* Släcker display 1. */
-#define DISPLAY2_OFF PORTC |= (1 << DISPLAY2_CATHODE)  /* Släcker display 2. */
+#define DISPLAY2_OFF PORTC |= (1 << DISPLAY2_CATHODE)  /* Släcker display 1. */
 
 #define OFF 0x00   /* Binärkod för släckning av 7-segmentsdisplay. */
 #define ZERO 0x3F  /* Binärkod för utskrift av heltalet 0 på 7-segmentsdisplay. */
@@ -295,34 +295,48 @@ void display_toggle_digit(void)
 
 /********************************************************************************
 * display_count: Räknar upp eller ned tal på 7-segmentsdisplayer.
+*
+*                1. Varje gång funktionen anropas, räkna upp timer_count_speed.
+*                2. Om timer_count_speed löper ut, räkna upp eller ned number
+*                   beroende på uppräkningsriktningen, annars görs ingenting.
+*                3. Om uppräkningsriktningen är uppåt, räkna upp number till
+*                   och med max_val. Om number > max_val, nollställ number.
+*                4. Om uppräkningsriktningen är nedåt, räknar ned number till
+*                   och med 0. Om number redan är 0, sätt den till max_val.
+*                5. Uppdatera tiotalet och entalet innan funktionen avslutas.
 ********************************************************************************/
-
 void display_count(void)
 {
-	timer_count(&timer_count_speed);
-	if(timer_elapsed(&timer_count_speed))
-	{
-		if(count_direction == DISPLAY_COUNT_DIRECTION_UP)
-		{
-			if(++number > max_val)
-			{
-				number = 0;
-			}
-		}
-		else
-		{
-			if(number == 0)
-			{
-				number = max_val;
-			}
-			else
-			{
-				number--;
-			}
-		}
-		
-		display_set_number(number);
-	}
+   timer_count(&timer_count_speed);
+
+   if (timer_elapsed(&timer_count_speed))
+   {
+      if (count_direction == DISPLAY_COUNT_DIRECTION_UP)
+      {
+         if (number >= max_val)
+         {
+            number = 0;
+         }
+         else
+         {
+            number++;
+         }
+      }
+      else
+      {  
+         if (number == 0)
+         {
+            number = max_val;
+         }
+         else
+         {
+            number--;
+         }
+      }
+   }
+
+   display_set_number(number);
+   return;
 }
 
 /********************************************************************************
@@ -331,19 +345,17 @@ void display_count(void)
 *
 *                              - new_direction: Ny uppräkningsriktning.
 ********************************************************************************/
-
-void display_set_count_direction(const enum display_count_direction new_direction)
+void set_count_direction(const enum display_count_direction new_direction)
 {
-	count_direction = new_direction;
-	return;
+   count_direction = new_direction;
+   return;
 }
 
 /********************************************************************************
 * display_toggle_count_direction: Togglar uppräkningsriktning för tal som skrivs
 *                                 ut på 7-segmentsdisplayer.
 ********************************************************************************/
-
-void display_toggle_direction(void)
+void display_toggle_count_direction(void)
 {
    count_direction = !count_direction;
    return;
@@ -356,12 +368,10 @@ void display_toggle_direction(void)
 *                    - direction     : Uppräkningsriktning.
 *                    - count_speed_ms: Uppräkningshastighet mätt i ms.
 ********************************************************************************/
-
-
 void display_set_count(const enum display_count_direction direction,
-const uint16_t count_speed_ms)
+                       const uint16_t count_speed_ms)
 {
-   count_direction = direction;	
+   count_direction = direction;
    timer_set_new_time(&timer_count_speed, count_speed_ms);
    return;
 }
@@ -372,45 +382,38 @@ const uint16_t count_speed_ms)
 *                       uppräkningshastighet på 1000 ms om inget annat angetts
 *                       (via anrop av funktionen display_set_count).
 ********************************************************************************/
-
 void display_enable_count(void)
 {
-	timer_enable_interrupt(&timer_count_speed);
-	return;
+   timer_enable_interrupt(&timer_count_speed);
+   return;
 }
-
 
 /********************************************************************************
 * display_disable_count: Inaktiverar upp- eller nedräkning av tal som skrivs ut
 *                        på 7-segmentsdisplayerna.
 ********************************************************************************/
-
 void display_disable_count(void)
 {
-	//timer_disable_interrupt(&timer_count_speed);
-	//timer_reset_counter(&timer_count_speed);
-	timer_reset(&timer_count_speed);
-	return;
+   timer_reset(&timer_count_speed);
+   return;
 }
 
 /********************************************************************************
 * display_toggle_count: Togglar upp- eller nedräkning av tal som skrivs ut på
 *                       7-segmentsdisplayerna.
-********************************************************************************/
-
+**********ö**********************************************************************/
 void display_toggle_count(void)
 {
-	if(display_count_enabled())
-	{
-		display_disable_count();
-	}
-	else
-	{
-		display_enable_count();
-	}
-	return;
+   if (display_count_enabled())
+   {
+      display_disable_count();
+   }
+   else
+   {
+      display_enable_count();
+   }
+   return;
 }
-
 
 /********************************************************************************
 * display_update_output: Skriver ny siffra till aktiverad 7-segmentsdisplay.
@@ -419,9 +422,9 @@ void display_toggle_count(void)
 ********************************************************************************/
 static inline void display_update_output(const uint8_t digit)
 {
-	PORTD &= (1 << DISPLAY1_CATHODE);
-	PORTD |= display_get_binary_code(digit);
-	return;
+   PORTD &= (1 << DISPLAY1_CATHODE);
+   PORTD |= display_get_binary_code(digit);
+   return;
 }
 
 /********************************************************************************
@@ -434,21 +437,21 @@ static inline void display_update_output(const uint8_t digit)
 ********************************************************************************/
 static inline uint8_t display_get_binary_code(const uint8_t digit)
 {
-	if (digit == 0)       return ZERO;
-	else if (digit == 1)  return ONE;
-	else if (digit == 2)  return TWO;
-	else if (digit == 3)  return THREE;
-	else if (digit == 4)  return FOUR;
-	else if (digit == 5)  return FIVE;
-	else if (digit == 6)  return SIX;
-	else if (digit == 7)  return SEVEN;
-	else if (digit == 8)  return EIGHT;
-	else if (digit == 9)  return NINE;
-	else if (digit == 10) return A;
-	else if (digit == 11) return B;
-	else if (digit == 12) return C;
-	else if (digit == 13) return D;
-	else if (digit == 14) return E;
-	else if (digit == 15) return F;
-	else                  return OFF;
+   if (digit == 0)       return ZERO;
+   else if (digit == 1)  return ONE;
+   else if (digit == 2)  return TWO;
+   else if (digit == 3)  return THREE;
+   else if (digit == 4)  return FOUR;
+   else if (digit == 5)  return FIVE;
+   else if (digit == 6)  return SIX;
+   else if (digit == 7)  return SEVEN;
+   else if (digit == 8)  return EIGHT;
+   else if (digit == 9)  return NINE;
+   else if (digit == 10) return A;
+   else if (digit == 11) return B;
+   else if (digit == 12) return C;
+   else if (digit == 13) return D;
+   else if (digit == 14) return E;
+   else if (digit == 15) return F;
+   else                  return OFF;
 }

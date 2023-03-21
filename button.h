@@ -109,4 +109,5 @@ static inline void button_disable_interrupt(struct button* self)
 ********************************************************************************/
 void button_toggle_interrupt(struct button* self);
 
+
 #endif /* BUTTON_H_ */

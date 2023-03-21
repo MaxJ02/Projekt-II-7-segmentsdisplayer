@@ -1,5 +1,5 @@
-# Anteckningar 2023-03-16
-Drivrutiner för utskrift av tal på 7-segmentsdisplayer, implementerade för mikrodator ATmega328P. 
+# Anteckningar 2023-03-20
+Drivrutiner för utskrift samt upp- och nedräkning av tal på 7-segmentsdisplayer, implementerade för mikrodator ATmega328P. 
 
 Två 7-segmentsdisplayer matas från samma pinnar (PORTD0 - PORTD6), där timerkrets Timer 1 används för att
 skifta vilken display som är på vid ett givet tillfälle. En gång i millisekunden skiftas aktiv display.
@@ -19,5 +19,5 @@ Som exempel, det decimala talet 74 delas in i tiotal och ental enligt nedan:
 tiotal = 74 / 10 = 7 (heltalsdivision)
 ental = 74 - 7 * 10 = 4
 
-I nästa del ska upp- och nedräkning av talet på displayerna implementeras via timerkrets Timer 2.
-För tillfället sker uppräkning med fördröjning i funktionen main.
+I bifogat program sker uppräkning från 0 - 99 på 7-segmentsdisplayerna med en uppräkningshastighet på 1000 ms.
+Via anrop av drivrutiner display_set_radix samt display_set_count kan talbasen, uppräkningsriktningen samt uppräkningshastigheten justeras efter behov.
