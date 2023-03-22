@@ -7,6 +7,7 @@
 *            har gemensam katod.
 ********************************************************************************/
 #include "display.h"
+#include "eeprom.h"
 
 /********************************************************************************
 * Makrodefinitioner:
@@ -51,6 +52,8 @@ enum display_digit
 ********************************************************************************/
 static inline void display_update_output(const uint8_t digit);
 static inline uint8_t display_get_binary_code(const uint8_t digit);
+static inline void display_check_eeprom(void);
+static inline void display_reset_eeprom(void);
 
 /********************************************************************************
 * Statiska variabler:
@@ -96,6 +99,7 @@ void display_init(void)
 
    timer_init(&timer_digit, TIMER_SEL_1, 1);
    timer_init(&timer_count_speed, TIMER_SEL_2, 1000);
+   display_check_eeprom();
    return;   
 }
 
@@ -119,6 +123,7 @@ void display_reset(void)
 
    count_direction = DISPLAY_COUNT_DIRECTION_UP;
    current_digit = DISPLAY_DIGIT1;
+   display_reset_eeprom();
    return;
 }
 
@@ -154,6 +159,7 @@ bool display_count_enabled(void)
 void display_enable_output(void)
 {
    timer_enable_interrupt(&timer_digit);
+   eeprom_write_byte(EEPROM_OUTPUT_ENABLED, 1);
    return;
 }
 
@@ -166,6 +172,7 @@ void display_enable_output(void)
 void display_disable_output(void)
 {
    timer_reset(&timer_digit);
+   eeprom_write_byte(EEPROM_OUTPUT_ENABLED, 0);
    DISPLAY1_OFF;
    DISPLAY2_OFF;
    return;
@@ -211,6 +218,7 @@ int display_set_number(const uint8_t new_number)
       number = new_number; 
       digit1 = number / radix;
       digit2 = number - digit1 * radix;
+	  eeprom_write_byte(EEPROM_NUMBER, number);
       return 0;
    }
 }
@@ -333,9 +341,10 @@ void display_count(void)
             number--;
          }
       }
+	   display_set_number(number);
    }
 
-   display_set_number(number);
+  
    return;
 }
 
@@ -348,6 +357,7 @@ void display_count(void)
 void set_count_direction(const enum display_count_direction new_direction)
 {
    count_direction = new_direction;
+   eeprom_write_byte(EEPROM_COUNT_DIRECTION, (uint8_t)(count_direction));
    return;
 }
 
@@ -358,6 +368,7 @@ void set_count_direction(const enum display_count_direction new_direction)
 void display_toggle_count_direction(void)
 {
    count_direction = !count_direction;
+   eeprom_write_byte(EEPROM_COUNT_DIRECTION, (uint8_t)(count_direction));
    return;
 }
 
@@ -372,6 +383,7 @@ void display_set_count(const enum display_count_direction direction,
                        const uint16_t count_speed_ms)
 {
    count_direction = direction;
+   eeprom_write_byte(EEPROM_COUNT_DIRECTION, (uint8_t)(count_direction));
    timer_set_new_time(&timer_count_speed, count_speed_ms);
    return;
 }
@@ -385,6 +397,7 @@ void display_set_count(const enum display_count_direction direction,
 void display_enable_count(void)
 {
    timer_enable_interrupt(&timer_count_speed);
+   eeprom_write_byte(EEPROM_COUNT_ENABLED, 1);
    return;
 }
 
@@ -395,6 +408,7 @@ void display_enable_count(void)
 void display_disable_count(void)
 {
    timer_reset(&timer_count_speed);
+   eeprom_write_byte(EEPROM_COUNT_ENABLED, 0);
    return;
 }
 
@@ -454,4 +468,41 @@ static inline uint8_t display_get_binary_code(const uint8_t digit)
    else if (digit == 14) return E;
    else if (digit == 15) return F;
    else                  return OFF;
+}
+
+static inline void display_check_eeprom(void)
+{
+	if (eeprom_read_byte(EEPROM_INITIALIZED) == 0)
+	{
+		display_set_number(eeprom_read_byte(EEPROM_NUMBER));
+		count_direction = (enum display_count_direction)eeprom_read_byte(EEPROM_COUNT_DIRECTION);
+		
+		if(eeprom_read_byte(EEPROM_OUTPUT_ENABLED) == 1)
+		{
+			display_enable_output();
+		}
+		if(eeprom_read_byte(EEPROM_COUNT_ENABLED) == 1)
+		{
+			display_enable_count();
+		}
+	}
+	else
+	{
+		eeprom_write_byte(EEPROM_NUMBER, 0);
+		eeprom_write_byte(EEPROM_OUTPUT_ENABLED, 0);
+		eeprom_write_byte(EEPROM_COUNT_ENABLED, 0);
+		eeprom_write_byte(EEPROM_COUNT_DIRECTION, (uint8_t)(DISPLAY_COUNT_DIRECTION_UP));
+		eeprom_write_byte(EEPROM_INITIALIZED, 0);
+	}
+	return;
+}
+
+static inline void display_reset_eeprom(void)
+{
+	eeprom_write_byte(EEPROM_NUMBER, 0);
+	eeprom_write_byte(EEPROM_OUTPUT_ENABLED, 0);
+	eeprom_write_byte(EEPROM_COUNT_ENABLED, 0);
+	eeprom_write_byte(EEPROM_COUNT_DIRECTION, (uint8_t)(DISPLAY_COUNT_DIRECTION_UP));
+	eeprom_write_byte(EEPROM_INITIALIZED, 0);
+	return;
 }

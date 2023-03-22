@@ -5,6 +5,9 @@
 
 ISR (PCINT0_vect)
 {
+	disable_pin_change_interrupt(IO_PORTB);
+	timer_enable_interrupt(&timer0);
+	
 	if (button_is_pressed(&b1))
 	{
 		display_toggle_count();
@@ -18,6 +21,17 @@ ISR (PCINT0_vect)
 		display_toggle_output();
 	}
 	return;
+}
+
+ISR (TIMER0_OVF_vect)
+{
+	timer_count(&timer0);
+	
+	if(timer_elapsed(&timer0))
+	{
+		timer_disable_interrupt(&timer0);
+		enable_pin_change_interrupt(IO_PORTB);	
+	}
 }
 
 /********************************************************************************
