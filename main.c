@@ -8,6 +8,7 @@
 struct button b1;
 struct button b2;
 struct button b3;
+struct timer timer0;
 
 /********************************************************************************
 * setup: Initierar systemet enligt följande:
@@ -34,6 +35,9 @@ static inline void setup(void)
    button_enable_interrupt(&b1);
    button_enable_interrupt(&b2);
    button_enable_interrupt(&b3);
+   
+   timer_init(&timer0, TIMER_SEL_0, 300);
+  
    
    return;
 }

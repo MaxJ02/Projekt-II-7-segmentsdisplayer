@@ -7,10 +7,18 @@
 
 /* Inkluderingsdirektiv: */
 #include "misc.h"
+#include "display.h"
 
 /* Makrodefinitioner: */
 #define EEPROM_ADDRESS_MIN 0    /* Lägsta adress i EEPROM-minnet. */
 #define EEPROM_ADDRESS_MAX 1023 /* Högsta adress i EEPROM-minnet. */
+
+#define EEPROM_NUMBER 100
+#define EEPROM_OUTPUT_ENABLED 101
+#define EEPROM_COUNT_ENABLED 102
+#define EEPROM_COUNT_DIRECTION 103
+#define EEPROM_INITIALIZED 104
+
 
 /********************************************************************************
 * eeprom_write_byte: Skriver en byte bestående av ett osignerat heltal till 
@@ -54,5 +62,7 @@ uint8_t eeprom_read_byte(const uint16_t address);
 *                                  ska läsas av.
 ********************************************************************************/
 uint16_t eeprom_read_word(const uint16_t address_low);
+
+
 
 #endif /* EEPROM_H_ */

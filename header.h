@@ -10,4 +10,6 @@ extern struct button b1;
 extern struct button b2;
 extern struct button b3;
 
+extern struct timer timer0;
+
 #endif /* HEADER_H_ */
