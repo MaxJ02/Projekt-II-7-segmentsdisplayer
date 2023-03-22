@@ -1,4 +1,4 @@
-# Anteckningar 2023-03-20
+# Projekt II
 Drivrutiner för utskrift samt upp- och nedräkning av tal på 7-segmentsdisplayer, implementerade för mikrodator ATmega328P. 
 
 Två 7-segmentsdisplayer matas från samma pinnar (PORTD0 - PORTD6), där timerkrets Timer 1 används för att
